@@ -43,6 +43,9 @@ stream_handler.setLevel(logging.INFO)
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
+# Google API key
+API_KEY = ''
+
 def load_json_data(json_file):
     """
     @goal: load data from json file
@@ -67,8 +70,13 @@ def get_gps_from_address(adress):
         json_google.write(requests.get(google_api_url).content)
 
     data_google = load_json_data(json_temp)
-    lat = float(data_google['results'][0]['geometry']['location']['lat'])
-    lng = float(data_google['results'][0]['geometry']['location']['lng'])
+    if data_google['results']:
+        lat = float(data_google['results'][0]['geometry']['location']['lat'])
+        lng = float(data_google['results'][0]['geometry']['location']['lng'])
+    else:
+        logger.error('No result found')
+        lat = None
+        lng = None
 
     logger.info(adress)
     logger.info('latitude:%f, longitude:%f', lat, lng)
@@ -92,9 +100,22 @@ def get_address_from_gps(lat, lng):
 
     return data_google['results'][0]['formatted_address']
 
+def get_places_from_gps(lat, lng, places_type):
+    google_api_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%f,%f&types=%s&rankby=distance&key=%s&sensor=false" \
+                     % (lat, lng, places_type, API_KEY)
+
+    json_temp      ='./tmp.json_%d-%d' % (lat, lng) 
+
+    with open(json_temp, 'w') as json_google:
+        json_google.write(requests.get(google_api_url).content)
+
+    data_google = load_json_data(json_temp)
+
+    return data_google['results']
+
 if __name__ == '__main__':
     # Guests list
-    GUESTS = ['Matt', 'Dim', 'Gamin', 'Fred', 'Tibi']
+    GUESTS = ['Matt', 'Dim', 'Gamin', 'Tibi']
     logger.info("Guests: " + ' / '.join(GUESTS))
 
     # Get addresses
@@ -113,4 +134,11 @@ if __name__ == '__main__':
     ICICI = get_address_from_gps(BARY[0], BARY[1])
     logger.info("ICICI: %s", ICICI)
 
+    TYPES = ['bar', 'cafe', 'restaurant']
+
+    for place_type in TYPES:
+        PLACES = get_places_from_gps(BARY[0], BARY[1], place_type)
+        PLACES = [ "%s - %s - rating: %2f" % (place['name'], place['vicinity'], place.get('rating', 0)) \
+                   for place in PLACES if 'rating' in place ]
+        logger.info('%s Rank by distance:\n%s', place_type, '\n'.join(PLACES))
 
