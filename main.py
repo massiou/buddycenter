@@ -25,7 +25,7 @@ APP = Flask(__name__)
 APP.config['DEBUG'] = True
 
 # google API Key
-API_KEY = "AIzaSyC1cgoNFc3hAHRMZWQM2x7uscTciFXrYXM"
+API_KEY = ""
 
 
 def load_json_data(json_file):
@@ -457,19 +457,18 @@ def gps():
     places.reverse()
 
     # Create doodle page, fill
-    doodle_page = create_doodle([place[0] \
-                                  for place in places], place_value)
+    doodle_page = create_doodle([place[0] for place in places], place_value)
 
-    # Create yelp url
+    # Create yelp url
     yelp = create_yelp(address_center)
 
-    # Create lafourchette url
+    # Create lafourchette url
     lafourchette = create_lafourchette(address_center, lat, lng)
 
-    # Create airbnb url
+    # Create airbnb url
     airbnb = create_airbnb(address_center, date_selected)
 
-    # Create unique link
+    # Create unique link
     html_link_uid, url_uid = create_unique_html_page(
         './maps.html')
 
