@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="massiou">
+    <link rel="icon" href="../static/images/map2.ico">
+
+    <title>buddies center</title>
+
+        <!-- Add jQuery library -->
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/mint-choc/jquery-ui.css" rel="stylesheet">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <!-- Add fancyBox -->
+    <script type="text/javascript" src="../static/jquery.fancybox.pack.js"></script>
+
+    <script type="text/javascript">
+    $( document ).ready(function() {
+    $('a.fancybox').fancybox({
+      openEffect : 'elastic',
+      closeEffect : 'elastic',
+      fitToView: true,
+      nextSpeed: 0, //important
+      prevSpeed: 0, //important
+      });
+    });
+    </script>
+    <!-- google analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-61726185-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+    <!-- END OF google analytics -->
+
+
+    <!-- rateit js and css -->
+    <script type="text/javascript" src="../static/src/jquery.rateit.js"></script>
+
+    <!-- bootstrap js-->
+    <script type="text/javascript" src="../static/bootstrap-datepicker.js"></script>
+    <link type="text/css" href="../static/datepicker.css" rel="stylesheet">
+    <script type="text/javascript" src="../static/moment.js"></script>
+    <!-- google map apis -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;libraries=places"></script>
+    <!-- Add fancyBox -->
+    <link rel="stylesheet" href="../static/jquery.fancybox.css" type="text/css" media="screen" />
+
+    <!-- rateit css -->
+    <link type="text/css" rel="stylesheet" href="../static/src/rateit.css">
+
+    <!-- bootstrap -->
+    <link href="../static/bootstrap.css" rel="stylesheet">
+    <link href="../static/bootstrap-switch.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/dashboard.css" rel="stylesheet">
+
+    <!-- custom -->
+    <link type="text/css" rel="stylesheet" href="../static/map.css">
+    <script src="../static/map.js"></script>
+
+  </head>
+
+  <body>
+<!-- FACEBOOK JS -->
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '395794067291402',
+      xfbml      : true,
+      version    : 'v2.3'
+    });
+  };
+
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- end FACEBOOK JS -->
+<!-- GOOGLE + -->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<!-- end GOOGLE + -->
+<!-- TWITTER -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+<!-- end TWITTER -->
+
+    <!-- Navbar -->
+
+    <!-- end of Navbar -->
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+
+
+{% if address_list %}
+    <div id="jumbotron_second" class="jumbotron">
+        <h1>buddies.center</h1>
+    </div> <!-- jumbotron -->
+
+    <div class="container">
+    <form id="my_form_matt" method="POST">
+
+      <div class="row">
+        <div class="col-md-3">
+
+          <h2 class="header">When ?</h2>
+            <div id='when'>
+              <input class='when' name="date_selected" size="16"  id="thedate" type="text" value="{{ date_selected }}" />
+            </div> <!-- end of when div-->
+        </div> <!-- col -->
+        <div class="col-md-3">
+          <h2 class="header">What ?</h2>
+            <div id='places_type'>
+              <select class="form-control" name="select_place_type">
+              {% if place_selected %}
+                <option value="{{ place_selected.0 }}">{{ place_selected.1 }}</option>
+              {% endif %}
+              {% for place in places_type_remaining %}
+                <option value="{{ place.0 }}">{{ place.1 }}</option>
+              {% endfor %}
+              </select>
+            </div> <!-- places_types -->
+        </div> <!-- col -->
+        <div class="col-md-6">
+          <h2 class="header">Where ?</h2>
+    <div class="input_fields_wrap">
+            {% for add in address_list %}
+                <div><input class="autocomplete" id="autocomplete{{ loop.counter }}" placeholder="Enter address" type="text" name="address{{ loop.counter }}" value="{{ add }}" /><a href="#" class="remove_field"><img src="../static/images/remove.png"/></a></div>
+            {% endfor %}
+    </div> <!-- input_fields_wrap -->
+            <button class="btn btn-lg btn-danger custom" id="add_field_button" type="button" value="add address">add address</button>
+            <br>
+            <br>
+            <input type="submit" class="btn btn-lg btn-success custom" name="Ok" value="Find center !">
+            <br>
+            <br>
+
+        </form>
+
+        </div> <!-- div class col -->
+    </div> <!-- div class row -->
+
+{% else %}
+    <div id="jumbotron_main" class="jumbotron">
+      <div class="container">
+        <h1>buddies.center</h1>
+          <p style="font-color:white;background-color:#7f7f7f;opacity: .8;">
+          <strong>
+            Find the perfect rendez-vous between two or more places.
+            Places of interest are displayed on a map, with all needed details such as reviews, website, phone number.
+            Share results with your friends to choose the best spot!
+          </strong>
+          </p>
+        <form id="my_form_matt" method="POST">
+
+        <div class="container text-center">
+          <div class="row">
+            <div class="col-md-12" align="center">
+
+          <h2 class="header">When ?</h2>
+            <div id='when'>
+              <input class='when' name="date_selected" size="16"  id="thedate" type="text" value="{{ date_selected }}" />
+            </div> <!-- end of when div-->
+          <h2 class="header">What ?</h2>
+            <div id='places_type'>
+              <select class="form-control" name="select_place_type">
+              {% if place_selected %}
+                <option value="{{ place_selected.0 }}">{{ place_selected.1 }}</option>
+              {% endif %}
+              {% for place in places_type_remaining %}
+                <option value="{{ place.0 }}">{{ place.1 }}</option>
+              {% endfor %}
+              </select>
+            </div> <!-- places_types -->
+          <h2 class="header">Where ?</h2>
+    <div class="input_fields_wrap">
+               <div><input class="autocomplete" id="autocomplete0" placeholder="Enter address" type="text" name="address0" /><img src="../static/images/mandatory.png" alt=""></div>
+               <div><input class="autocomplete" id="autocomplete1" placeholder="Enter address" type="text" name="address1" /><a href="#" class="remove_field"><img src="../static/images/remove.png" alt=""></a></div>
+               <div><input class="autocomplete" id="autocomplete2" placeholder="Enter address" type="text" name="address2" /><a href="#" class="remove_field"><img src="../static/images/remove.png" alt=""></a></div>
+    </div> <!-- input_fields_wrap -->
+            <br>
+            <br>
+            <!--<button type="button" class="btn btn-danger" id="add_field_button" aria-label="Center Align">
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>-->
+            <button class="btn btn-lg btn-danger custom" id="add_field_button" type="button" value="add address">add address</button>
+            <br>
+            <br>
+            <input type="submit" class="btn btn-lg btn-success custom" name="Ok" value="Find center !">
+            <br>
+            <br>
+        </form>
+
+        </div> <!-- div class col -->
+      </div> <!-- div class row -->
+{% endif %}
+
+{% if address_list %}
+    <div class="col-md-6">
+      <div class="alert alert-info" role="alert">
+        <strong> Rendez-vous: {{ address_center }} </strong>
+      {% for add in distances %}
+          <br>{{ add.0 }} -> {{ add.1.0 }} {{ add.1.1 }}
+      {%endfor%}
+      <br><br>
+        <div> Share link : <a href="{{ url_uid }}"> {{ url_uid }} </a> </div>
+        <br>
+        <div>
+          <a class="fancybox fancybox.iframe" href="{{ yelp }}"><button class="btn btn-lg btn-info" id="yelp" type="button" value="yelp">yelp <img src="../static/images/yelp.png" alt=""></button></a>
+          <a target="_blank" href="{{ doodle_page }}"><button class="btn btn-lg btn-info" id="create_doodle" type="button" value="create_doodle">doodle</button></a>
+          <a target="_blank" href="{{ airbnb }}"><button class="btn btn-lg btn-info" id="airbnb" type="button" value="airbnb">airbnb <img src="../static/images/airbnb.png" alt=""></button></a>
+          <a class="fancybox fancybox.iframe" href="{{ lafourchette }}"><button class="btn btn-lg btn-info" id="lafourchette" type="button" value="lafourchette">lafourchette <img src="../static/images/fork.png" alt=""></button></a>
+          <a class="fancybox fancybox.iframe" href="http://www.allomatch.com/"><button class="btn btn-lg btn-info" id="allomatch" type="button" value="allomatch">allomatch <img src="../static/images/soccer.png" alt=""></button></a>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+            <br>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Infos</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {% for place in places %}
+                  <tr>
+                    <td><img src="{{ place.9 }}" width="200" height="150" alt="">
+                    <td>{% if place.4 %}
+                       <a class="fancybox fancybox.iframe" href="{{ place.4 }}">#{{ loop.counter }} {{ place.0 }} </a> <br>
+                      {% else %}
+                          #{{ loop.counter }} {{ place.0 }} <br>
+                      {% endif %}
+                    {{ place.1 }} <br>
+                    {{ place.3 }} <br>
+                    <div class="rateit" data-rateit-value="{{ place.2 }}" data-rateit-ispreset="true" data-rateit-readonly="true">
+                        </div>
+                        <a class="fancybox" id="#{{ place.6 }}_reviews_id" href="#{{ place.6 }}_reviews"> view reviews </a>
+                    </td>
+                  </tr>
+
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div> <!-- table responsive -->
+
+
+    </div>
+
+   <div class="col-md-6">
+          <!-- Display buddycenter map -->
+          <div id="buddycenter_map">
+
+          </div>
+    </div> <!-- div class col -->
+
+      {% for place in places %}
+      <div style="display:none; width: auto !important"> <!-- build REVIEW PLACES -->
+        <div id="{{ place.6 }}_reviews">
+          <br><br>
+          <table class="table table-striped" style="width:768px;">
+          <h1> {{ place.0 }} </h1>
+            <tr>
+              <th> author </th>
+              <th> comment </th>
+            </tr>
+            {% for review in place.5 %}
+            <tr>
+              <td> {{ review.author_name }} </br>
+                   {{ review.time }}</br>
+                   <div class="rateit" data-rateit-value="{{ review.rating }}" data-rateit-ispreset="true" data-rateit-readonly="true">
+              </td>
+              <td> {{ review.text }}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div> <!-- END OF build REVIEW PLACES -->
+     {% endfor %}
+       </div> <!-- jumbotron -->
+{% endif %} <!-- address_list -->
+</div> <!-- ? -->
+<!-- footer -->
+
+{% if address_list %}
+<footer id="footer" class="footer">
+    <div class=container>
+      <div class="row">
+        <div class="col-md-12">
+            <ul class="nav nav-pills nav-justified">
+                <li><div>
+			      <p class="title"><strong>What is the buddies center ?</strong></p>
+			      <p>The buddies center is the center of gravity between two or more addresses
+			      </p>
+		        </div>
+		        </li>
+                <li><div>
+			      <p class="title"><strong>How does the buddies center is calculated ?</strong></p>
+			      <p> Given an address, GPS coordinates are estimated. The buddies center is the average GPS position.
+			      </p>
+		        </div>
+		        </li>
+                <li>
+                <div>
+			      <p class="title"><strong>How can you use it ?</strong></p>
+			      <p> Fill addresses -you can add locations up to 10- just press "Find Center!" button and that's it !
+			      </p>
+		        </div>
+		        </li>
+            </ul>
+            <ul class="nav nav-pills nav-justified">
+                <li><div class="fb-share-button" data-href="http://www.buddies.center" data-layout="button_count"></div>
+                </li>
+                <li><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+                </li>
+                <li>
+                <div class="g-plusone" data-annotation="inline" data-width="300"></div>
+                </li>
+
+            </ul>
+            <ul class="nav nav-pills nav-justified">
+                <li><a href="mailto:mvelay@gmail.com?Subject=buddies.center">© 2015 massiou</a></li>
+            </ul>
+        </div> <!-- end of col-md-12 -->
+    </div><!-- end of row -->
+  </div> <!-- end of container -->
+</footer> <!-- end of footer -->
+{% else %}
+<footer class="footer">
+<div class="container">
+    <a href="mailto:mvelay@gmail.com?Subject=buddies.center">© 2015 massiou</a>
+</div>
+</footer>
+{% endif %}
+    <!-- JavaScript
+    ================================================== -->
+
+  </body>
+</html>

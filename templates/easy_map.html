@@ -1,0 +1,143 @@
+{% with map.latitude|stringformat:"f" as lat %}
+{% with map.longitude|stringformat:"f" as long %}
+
+<!-- -->
+
+<!-- -->
+
+
+{% block api_js %}
+    <!-- Google Maps API javascript -->
+
+{% endblock %}
+
+{% block html %}
+    <!-- HTML map container         -->
+    <div id="map-canvas"
+        {% if width and map.latitude and not map.geocode_error %}
+        style="width: {{ width }}px; height: {{ height }}px;"
+        {% endif %}
+        class="easy-map-googlemap">
+        {% block noscript %}
+        <noscript>
+        <iframe alt="Map of {{ map.address }}" src="https://maps.google.com/maps/api/staticmap?center={{ lat }},{{ long }}&zoom={{ zoom }}&markers={{ lat }},{{ long }}&size={{ width }}x{{ height }}&sensor=false"></iframe>
+        </noscript>
+        {% endblock noscript %}
+        {% if map.geocode_error %}<!-- geocoding error -->{% endif %}
+    </div>
+{% endblock %}
+
+{% block map_js %}
+    <!-- Map creation script -->
+    <script type="text/javascript">
+
+        function initialize_map_{{ map.pk }}() {
+            var latlng = new google.maps.LatLng({{ lat }}, {{ long }});
+            var mapElem = document.getElementById("map-canvas");
+            {% block map_options_js %}
+            var mapOptions = {
+                zoom: {{ zoom }},
+                center: latlng,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            {% endblock %}
+
+            var map = new google.maps.Map(mapElem, mapOptions);
+
+            $(window).resize(function() {
+            // (the 'map' here is the result of the created 'var map = ...' above)
+            google.maps.event.trigger(map, "resize");
+             });
+
+            {% block extra_js %}
+            var marker = new google.maps.Marker({
+                position: latlng,
+                map: map,
+                icon: '../static/markers/flag1_big.png',
+                title: "{{ map.address }}"
+            });
+            {% endblock %}
+        setMarkers(map, buddies_addresses, '../static/markers/flag2.png');
+        setMarkers(map, places_addresses, '../static/markers/' + '{{ marker_image }}' );
+        }
+
+{% if buddies_gps_list %}
+var buddies_addresses = [
+{% for marker in buddies_gps_list %}
+  ['{{ forloop.counter1 }}', {{ marker.0 }}, {{ marker.1 }}, {{ forloop.counter1 }}, '<div><h1 location{{ forloop.counter1 }} # <h2> {{ address_list.forloop.counter }} </h2></div>' ],
+{% endfor %}
+];
+{% endif %}
+
+{% if places %}
+  var places_addresses = [
+  {% for place in places %}
+
+    [ '{{ place.0 }}', {{ place.7.0 }}, {{ place.7.1 }}, {{ forloop.counter1 }},
+       '<div> <h2> {{ place.0 }} </h2><h3>#{{ forloop.counter }} </h3><img src="{{ place.9 }}" width=100 height=50><p>{{ place.1 }} <br><br><a class="fancybox fancybox.iframe" href="{{ place.4 }}">{{ place.4 }}</a><br>Phone:<a href="tel:{{ place.3 }}">{{ place.3 }}</a><br>{{ place.2 }}<div class="rateit" data-rateit-value="{{ place.2 }}" data-rateit-ispreset="true" data-rateit-readonly="true"></div><br><a class="fancybox" id="#{{ place.6 }}_reviews_id" href="#{{ place.6 }}_reviews"> view reviews </a></p></div>' ],
+  {% endfor %}
+  ];
+{% endif %}
+function setMarkers(map, locations, image_path) {
+  // Add markers to the map
+
+  // Marker sizes are expressed as a Size of X,Y
+  // where the origin of the image (0,0) is located
+  // in the top left of the image.
+
+  // Origins, anchor positions and coordinates of the marker
+  // increase in the X direction to the right and in
+  // the Y direction down.
+
+  // Shapes define the clickable region of the icon.
+  // The type defines an HTML &lt;area&gt; element 'poly' which
+  // traces out a polygon as a series of X,Y points. The final
+  // coordinate closes the poly by connecting to the first
+  // coordinate.
+  var infoWindowVar = {};
+
+  for (var i = 0; i < locations.length; i++) {
+    var address = locations[i];
+    var myLatLng = new google.maps.LatLng(address[1], address[2]);
+    var marker = new google.maps.Marker({
+        position: myLatLng,
+        map: map,
+        icon: image_path,
+        title: address[0],
+        zIndex: address[3]
+    });
+    var contentString = address[4];
+
+    var infowindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+
+    bindInfoWindow(marker, map, infowindow, contentString);
+  }
+}
+function bindInfoWindow(marker, map, infowindow, description) {
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(description);
+        infowindow.open(map, marker);
+    });
+}
+
+        {% block map_loading_js %}
+        // initialize the map after page loading
+        google.maps.event.addDomListener(window, 'load', initialize_map_{{ map.pk }});
+
+        $('#"map-canvas"').html(function() {
+
+            var mapWidth = $(document).width();
+            var mapImageURL = 'https://maps.google.com/maps/api/staticmap?center={{ lat }},{{ long }}&zoom={{ zoom }}&markers={{ lat }},{{ long }}&size='+mapWidth+'x{{ height }}&sensor=false'
+
+    return 'style="width: '+mapWidth+'px; height: {{ height }}px;class="easy-map-googlemap">';
+
+});
+
+        {% endblock %}
+    </script>
+{% endblock %}
+
+{% endwith %}
+{% endwith %}
